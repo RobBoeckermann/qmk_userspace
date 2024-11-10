@@ -4,7 +4,7 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "zmk compile",
+            "label": "qmk compile",
             "type": "shell",
             "command": "clear && qmk compile -c -kb bastardkb/charybdis/3x5 -km rob_charybdis_nano",
             "problemMatcher": []

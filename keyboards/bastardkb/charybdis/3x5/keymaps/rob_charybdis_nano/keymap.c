@@ -27,6 +27,14 @@
 
 enum charybdis_keymap_layers {
     L_BASE = 0,
+    L_SHIFT,
+    L_FUNCTION,
+    L_ARROWS,
+    L_SYMBOLS,
+    L_NUMPAD,
+    L_VSCODE,
+    L_WINDOWS,
+    L_MEDIA,
     L_POINTER,
 };
 
@@ -68,26 +76,117 @@ static uint16_t auto_pointer_layer_timer = 0;
 #define ______________HOME_ROW_GACS_R______________ KC_LGUI, KC_LSFT, KC_LCTL, KC_LALT, XXXXXXX
 
 // clang-format off
+
+// -----------------------------------------------------------------------------------------
+// |   q   |  h  |  o  |  u  |  x  |                                        |  g  |  c  |  r  |  f  |  z  |
+// |  y/-  |  i  |  e  |  a  |  .  |                                        |  d  |  s  |  t  |  n  | b/; |
+// |   j   |  /  |  ,  |  k  |  '  |                                        |  w  |  m  |  l  |  p  |  v  |
+//       | ENTER | BACKSPACE | TAB |                                        | DELETE | SPACE |
 #define LAYER_BASE \
-  KC_Q,         KC_H,     KC_O,             KC_U,           KC_X,           /**/  KC_G,           KC_C,           KC_R,   KC_F,   KC_Z,           \
-  /* KC_Y_MEDIA */KC_Y,   KC_I,     KC_E,             KC_A,           KC_DOT,         /**/  KC_D,           KC_S,           KC_T,   KC_N,   KC_B, \
-  /* KC_J_VSCODE */KC_J,  KC_SLSH,  KC_COMM,          KC_K,           KC_QUOT,        /**/  KC_W,           KC_M,           KC_L,   KC_P,   KC_V, \
+KC_Q,         KC_H,     KC_O,             KC_U,           KC_X,           /**/  KC_G,           KC_C,           KC_R,   KC_F,   KC_Z,           \
+/* KC_Y_MEDIA */KC_Y,   KC_I,     KC_E,             KC_A,           KC_DOT,         /**/  KC_D,           KC_S,           KC_T,   KC_N,   KC_B, \
+/* KC_J_VSCODE */KC_J,  KC_SLSH,  KC_COMM,          KC_K,           KC_QUOT,        /**/  KC_W,           KC_M,           KC_L,   KC_P,   KC_V, \
 KC_NO, KC_NO, KC_NO, KC_NO, KC_NO
 //                          KC_ENT_FUNCTION,  KC_BSPC_SHIFT,  KC_TAB_ARROWS,  /**/  KC_DEL_NUMPAD,  KC_SPC_SYMBOLS
 
-#define L_SHIFT                                                                          \
-  LSFT(KC_Q), LSFT(KC_H), LSFT(KC_O), LSFT(KC_U), LSFT(KC_X),       LSFT(KC_G), LSFT(KC_C), LSFT(KC_R), LSFT(KC_F), LSFT(KC_Z), \
-  LSFT(KC_Y), LSFT(KC_I), LSFT(KC_E), LSFT(KC_A), KC_AT,            LSFT(KC_D), LSFT(KC_S), LSFT(KC_T), LSFT(KC_N), LSFT(KC_B), \
-  LSFT(KC_J), KC_QUES,    KC_EXLM,    LSFT(KC_K), KC_GRV,           LSFT(KC_W), LSFT(KC_M), LSFT(KC_L), LSFT(KC_P), LSFT(KC_V), \
-                          _______,    _______,    _______,          _______,    _______
+// -----------------------------------------------------------------------------------------
+// |  Q  |  H  |  O  |  U  |  X  |                                        |  G  |  C  |  R  |  F  |  Z  |
+// |  Y  |  I  |  E  |  A  |  @  |                                        |  D  |  S  |  T  |  N  |  B  |
+// |  J  |  ?  |  !  |  K  |  `  |                                        |  W  |  M  |  L  |  P  |  V  |
+//             |     |  *  |     |                                        |     |     |
+#define LAYER_SHIFT \
+LSFT(KC_Q), LSFT(KC_H), LSFT(KC_O), LSFT(KC_U), LSFT(KC_X),       LSFT(KC_G), LSFT(KC_C), LSFT(KC_R), LSFT(KC_F), LSFT(KC_Z), \
+LSFT(KC_Y), LSFT(KC_I), LSFT(KC_E), LSFT(KC_A), KC_AT,            LSFT(KC_D), LSFT(KC_S), LSFT(KC_T), LSFT(KC_N), LSFT(KC_B), \
+LSFT(KC_J), KC_QUES,    KC_EXLM,    LSFT(KC_K), KC_GRV,           LSFT(KC_W), LSFT(KC_M), LSFT(KC_L), LSFT(KC_P), LSFT(KC_V), \
+                        _______,    _______,    _______,          _______,    _______
 
-#define L_FUNCTION \
-  KC_ESC,            _______,       TD_TAB_CLOSE_REOPEN,   LCTL(KC_T),  LCTL(KC_S),       KC_F10, KC_F7,    KC_F8, KC_F9,   _______,  _______,  \
-  LCTL(KC_SLSH),     LCTL(KC_Z),    TD_COPY_CUT,    /* LCTL(KC_V), */  LCTL(LSFT(KC_Z)),       KC_F11, _______,  KC_F1, KC_F2,   KC_F3,    _______,  \
-LALT(LSFT(KC_A)),  LCTL(KC_F),    LCTL(LSFT(KC_F)), _______,       _______,                               KC_F12, KC_F4,    KC_F5,    KC_F6, _______, _______,            \
-                                      _______,        _______,       _______,     _______,        _______
+// -----------------------------------------------------------------------------------------
+// |ESC            |       |CLOSE TAB              |NEW TAB        |SAVE        |               |F10|F7 |F8 |F9 |   |
+// |LINE COMMENT   |UNDO   |COPY                   |PASTE          |REDO        |               |F11|   |F1 |F2 |F3 |
+// |BLOCK COMMENT  |FIND   |FIND IN SOLUTION       |               |            |               |F12|F4 |F5 |F6 |   |
+//                         |           *           |               |            |               |   |   |
+#define LAYER_FUNCTION \
+KC_ESC,            _______,     TD_TAB_CLOSE_REOPEN,    LCTL(KC_T), LCTL(KC_S),       /**/ KC_F10,     KC_F7,    KC_F8,    KC_F9,  _______,    _______,  \
+LCTL(KC_SLSH),     LCTL(KC_Z),  TD_COPY,                TD_PASTE,   LCTL(LSFT(KC_Z)), /**/ KC_F11,     _______,  KC_F1,    KC_F2,  KC_F3,      _______,  \
+LALT(LSFT(KC_A)),  LCTL(KC_F),  LCTL(LSFT(KC_F)),       _______,    _______,          /**/ KC_F12,     KC_F4,    KC_F5,    KC_F6,  _______,    _______,  \
+                                _______,                _______,    _______,          /**/ _______,    _______
 
+// -----------------------------------------------------------------------------------------
+// | RESET      |                | SELECT WORD |         |          |                        |    |HOME    |UP     |END       |       |
+// | SCREENSHOT | SHIFT          | CTRL        | ALT     |          |                        |    |LEFT    |DOWN   |RIGHT     |INSERT |
+// | RESTART    | DEBUG/CONTINUE | STEP        | STEP IN | STEP OUT |                        |    |PAGE UP |       |PAGE DOWN |       |
+//                               |             | BOOT    |     *    |                        |    |        |
+#define LAYER_ARROWS \
+_______,    _______,    _______,    _______,    _______, /**/ _______,  _______,    _______,    _______,    _______, \
+_______,    _______,    _______,    _______,    _______, /**/ _______,  _______,    _______,    _______,    _______, \
+_______,    _______,    _______,    _______,    _______, /**/ _______,  _______,    _______,    _______,    _______, \
+                        _______,    _______,    _______, /**/ _______,  _______
 
+// -----------------------------------------------------------------------------------------
+// |     |  <  |  $  |  >  |     |                        |     |  [  |  _  |  ]  |     |
+// |  \  |  (  |  "  |  )  |  #  |                        |  %  |  {  |  =  |  }  |  |  |
+// |     |  :  |  *  |  +  |     |                        |     |  &  |  ^  |  ~  |     |
+//             |     |     |     |                        |     |  *  |
+#define LAYER_SYMBOLS \
+_______,    _______,    _______,    _______,    _______, /**/ _______,  _______,    _______,    _______,    _______, \
+_______,    _______,    _______,    _______,    _______, /**/ _______,  _______,    _______,    _______,    _______, \
+_______,    _______,    _______,    _______,    _______, /**/ _______,  _______,    _______,    _______,    _______, \
+                        _______,    _______,    _______, /**/ _______,  _______
+
+// -----------------------------------------------------------------------------------------
+// |    | (  | +  | )  |    |                        | PERIOD      |  7  |  8  |  9  | RESET |
+// | =  | /  | -  | *  | .  |                        | BACKSPACE   |  0  |  1  |  2  |  3    |
+// |    | :  |    |    |    |                        | COLON       |  4  |  5  |  6  |       |
+//           |    |    |    |                        |      *      | BOOT|
+#define LAYER_NUMPAD \
+_______,    _______,    _______,    _______,    _______, /**/ _______,  _______,    _______,    _______,    _______, \
+_______,    _______,    _______,    _______,    _______, /**/ _______,  _______,    _______,    _______,    _______, \
+_______,    _______,    _______,    _______,    _______, /**/ _______,  _______,    _______,    _______,    _______, \
+                        _______,    _______,    _______, /**/ _______,  _______
+
+// -----------------------------------------------------------------------------------------
+// |     |peef def          |references     |implementations        |    |                        |    |    |    |    |    |
+// |     |back              |def            |forward                |    |                        |    |    |    |    |    |
+// |  *  |prev bookmark     |bookmark       |next bookmark          |    |                        |    |    |    |    |    |
+//                          |               |                       |    |                        |    |    |
+#define LAYER_VSCODE \
+_______,    _______,    _______,    _______,    _______, /**/ _______,  _______,    _______,    _______,    _______, \
+_______,    _______,    _______,    _______,    _______, /**/ _______,  _______,    _______,    _______,    _______, \
+_______,    _______,    _______,    _______,    _______, /**/ _______,  _______,    _______,    _______,    _______, \
+                        _______,    _______,    _______, /**/ _______,  _______
+
+// -----------------------------------------------------------------------------------------
+// |     |VD left           |window up      |VD right       |new VD         |                        |    |    | BRIGHTNESS UP    |    |    |
+// |  *  |window left       |window down    |window right   |exit VD        |                        |    |    | BRIGHTNESS DOWN  |    |    |
+// |     |                  |               |               |               |                        |    |    |    |    |    |
+//                          |monitor left   |task view      |monitor right  |                        |    |    |
+#define LAYER_WINDOWS \
+_______,    _______,    _______,    _______,    _______, /**/ _______,  _______,    _______,    _______,    _______, \
+_______,    _______,    _______,    _______,    _______, /**/ _______,  _______,    _______,    _______,    _______, \
+_______,    _______,    _______,    _______,    _______, /**/ _______,  _______,    _______,    _______,    _______, \
+                        _______,    _______,    _______, /**/ _______,  _______
+
+// -----------------------------------------------------------------------------------------
+// |   *   |VOL DOWN / PREV  |VOL UP / NEXT  |PLAY PAUSE / MUTE  |    |                        |    |    |    |    |    |
+// |       |                 |               |                   |    |                        |    |    |    |    |    |
+// |       |                 |               |                   |    |                        |    |    |    |    |    |
+//                           |               |                   |    |                        |    |    |
+#define LAYER_MEDIA \
+_______,    _______,    _______,    _______,    _______, /**/ _______,  _______,    _______,    _______,    _______, \
+_______,    _______,    _______,    _______,    _______, /**/ _______,  _______,    _______,    _______,    _______, \
+_______,    _______,    _______,    _______,    _______, /**/ _______,  _______,    _______,    _______,    _______, \
+                        _______,    _______,    _______, /**/ _______,  _______
+
+// -----------------------------------------------------------------------------------------
+// |    |    |    |    |    | /**/ |    |    |    |    |    |
+// |    |    |    |    |    | /**/ |    |    |    |    |    |
+// |    |    |    |    |    | /**/ |    |    |    |    |    |
+//           |    |    |    | /**/ |    |    |
+#define LAYER_TEMPLATE \
+_______,    _______,    _______,    _______,    _______, /**/ _______,  _______,    _______,    _______,    _______, \
+_______,    _______,    _______,    _______,    _______, /**/ _______,  _______,    _______,    _______,    _______, \
+_______,    _______,    _______,    _______,    _______, /**/ _______,  _______,    _______,    _______,    _______, \
+                        _______,    _______,    _______, /**/ _______,  _______
 
 
 /**
@@ -141,8 +240,17 @@ LALT(LSFT(KC_A)),  LCTL(KC_F),    LCTL(LSFT(KC_F)), _______,       _______,     
 #define LAYOUT_wrapper(...) LAYOUT(__VA_ARGS__)
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
-  [L_BASE] = LAYOUT_wrapper(POINTER_MOD(HOME_ROW_MOD_GACS(LAYER_BASE)))
+  [L_BASE] = LAYOUT_wrapper(POINTER_MOD(HOME_ROW_MOD_GACS(LAYER_BASE))),
+  [L_SHIFT] = LAYOUT_wrapper(LAYER_SHIFT),
+  [L_FUNCTION] = LAYOUT_wrapper(LAYER_FUNCTION),
+  [L_ARROWS] = LAYOUT_wrapper(LAYER_ARROWS),
+  [L_SYMBOLS] = LAYOUT_wrapper(LAYER_SYMBOLS),
+  [L_NUMPAD] = LAYOUT_wrapper(LAYER_NUMPAD),
+  [L_VSCODE] = LAYOUT_wrapper(LAYER_VSCODE),
+  [L_WINDOWS] = LAYOUT_wrapper(LAYER_WINDOWS),
+  [L_MEDIA] = LAYOUT_wrapper(LAYER_MEDIA),
 };
+
 // clang-format on
 
 #ifdef POINTING_DEVICE_ENABLE

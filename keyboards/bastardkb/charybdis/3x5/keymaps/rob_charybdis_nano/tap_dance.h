@@ -20,8 +20,8 @@ typedef struct {
 
 enum {
     TD_TAB_CLOSE_REOPEN,
-    TD_COPY_CUT,
-    TD_PASTE_HISTORY_FORMATTING,
+    TD_COPY,
+    TD_PASTE,
 };
 
 td_state_t cur_dance(tap_dance_state_t *state);
@@ -125,8 +125,8 @@ void tab_close_reopen_finished(tap_dance_state_t *state, void *user_data) {
 
 void tab_close_reopen_reset(tap_dance_state_t *state, void *user_data) {
     switch (xtap_state.state) {
-        case TD_SINGLE_TAP: tap_code16(LCTL(KC_W)); break;
-        case TD_SINGLE_HOLD: tap_code16(LCTL(LSFT(KC_T))); break;
+        case TD_SINGLE_TAP: unregister_code16(LCTL(KC_W)); break;
+        case TD_SINGLE_HOLD: unregister_code16(LCTL(LSFT(KC_T))); break;
         default: break;
     }
     xtap_state.state = TD_NONE;
@@ -143,8 +143,8 @@ void copy_finished(tap_dance_state_t *state, void *user_data) {
 
 void copy_reset(tap_dance_state_t *state, void *user_data) {
     switch (xtap_state.state) {
-        case TD_SINGLE_TAP: tap_code16(LCTL(KC_C)); break;
-        case TD_SINGLE_HOLD: tap_code16(LCTL(KC_X)); break;
+        case TD_SINGLE_TAP: unregister_code16(LCTL(KC_C)); break;
+        case TD_SINGLE_HOLD: unregister_code16(LCTL(KC_X)); break;
         default: break;
     }
     xtap_state.state = TD_NONE;
@@ -155,23 +155,16 @@ void paste_finished(tap_dance_state_t *state, void *user_data) {
     switch (xtap_state.state) {
         case TD_SINGLE_TAP: tap_code16(LCTL(KC_V)); break;
         case TD_SINGLE_HOLD: tap_code16(LGUI(KC_V)); break;
-        case TD_DOUBLE_TAP: tap_code16(LCTL(LSFT(KC_V))); break;
-        case TD_DOUBLE_HOLD: tap_code16(LCTL(KC_V)); break;
-        // Last case is for fast typing. Assuming your key is `f`:
-        // For example, when typing the word `buffer`, and you want to make sure that you send `ff` and not `Esc`.
-        // In order to type `ff` when typing fast, the next character will have to be hit within the `TAPPING_TERM`, which by default is 200ms.
-        case TD_DOUBLE_SINGLE_TAP: tap_code(KC_X); register_code(KC_X); break;
+        case TD_DOUBLE_HOLD: tap_code16(LCTL(LSFT(KC_V))); break;
         default: break;
     }
 }
 
 void paste_reset(tap_dance_state_t *state, void *user_data) {
     switch (xtap_state.state) {
-        case TD_SINGLE_TAP: unregister_code(KC_X); break;
-        case TD_SINGLE_HOLD: unregister_code(KC_LCTL); break;
-        case TD_DOUBLE_TAP: unregister_code(KC_ESC); break;
-        case TD_DOUBLE_HOLD: unregister_code(KC_LALT); break;
-        case TD_DOUBLE_SINGLE_TAP: unregister_code(KC_X); break;
+        case TD_SINGLE_TAP: unregister_code16(LCTL(KC_V)); break;
+        case TD_SINGLE_HOLD: unregister_code16(LGUI(KC_V)); break;
+        case TD_DOUBLE_HOLD: unregister_code16(LCTL(LSFT(KC_V))); break;
         default: break;
     }
     xtap_state.state = TD_NONE;
@@ -179,7 +172,7 @@ void paste_reset(tap_dance_state_t *state, void *user_data) {
 
 tap_dance_action_t tap_dance_actions[] = {
     [TD_TAB_CLOSE_REOPEN] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, tab_close_reopen_finished, tab_close_reopen_reset),
-    [TD_COPY_CUT] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, copy_finished, copy_reset),
-    [TD_PASTE_HISTORY_FORMATTING] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, paste_finished, paste_reset)
+    [TD_COPY] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, copy_finished, copy_reset),
+    [TD_PASTE] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, paste_finished, paste_reset)
 };
 
