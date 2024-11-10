@@ -17,10 +17,35 @@
 #include QMK_KEYBOARD_H
 #include "tap_dance.h"
 
+#ifdef CHARYBDIS_AUTO_POINTER_LAYER_TRIGGER_ENABLE
+#    include "timer.h"
+#endif // CHARYBDIS_AUTO_POINTER_LAYER_TRIGGER_ENABLE
+
+// TODO:
+// DPI configs and buttons https://docs.bastardkb.com/fw/charybdis-features.html
+
 
 enum charybdis_keymap_layers {
     L_BASE = 0,
+    L_POINTER,
 };
+
+// Automatically enable sniping-mode on the pointer layer.
+#define CHARYBDIS_AUTO_SNIPING_ON_LAYER L_POINTER
+
+#ifdef CHARYBDIS_AUTO_POINTER_LAYER_TRIGGER_ENABLE
+static uint16_t auto_pointer_layer_timer = 0;
+
+#    ifndef CHARYBDIS_AUTO_POINTER_LAYER_TRIGGER_TIMEOUT_MS
+#        define CHARYBDIS_AUTO_POINTER_LAYER_TRIGGER_TIMEOUT_MS 1000
+#    endif // CHARYBDIS_AUTO_POINTER_LAYER_TRIGGER_TIMEOUT_MS
+
+#    ifndef CHARYBDIS_AUTO_POINTER_LAYER_TRIGGER_THRESHOLD
+#        define CHARYBDIS_AUTO_POINTER_LAYER_TRIGGER_THRESHOLD 8
+#    endif // CHARYBDIS_AUTO_POINTER_LAYER_TRIGGER_THRESHOLD
+#endif     // CHARYBDIS_AUTO_POINTER_LAYER_TRIGGER_ENABLE
+
+#define _L_PTR(KC) LT(L_POINTER, KC)
 
 // #define KC_Y_MEDIA LT(L_MEDIA, KC_Y)
 // #define KC_J_VSCODE LT(L_VSCODE, KC_J)
@@ -29,6 +54,13 @@ enum charybdis_keymap_layers {
 // #define KC_TAB_ARROWS LT(L_ARROWS, KC_TAB)
 // #define KC_DEL_NUMPAD LT(L_NUMPAD, KC_DEL)
 // #define KC_SPC_SYMBOLS LT(L_SYMBOLS, KC_SPC)
+
+#ifndef POINTING_DEVICE_ENABLE
+#    define DRGSCRL KC_NO
+#    define DPI_MOD KC_NO
+#    define S_D_MOD KC_NO
+#    define SNIPING KC_NO
+#endif // !POINTING_DEVICE_ENABLE
 
 /** Convenience row shorthands. */
 #define _______________DEAD_HALF_ROW_______________ XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX
@@ -50,8 +82,8 @@ KC_NO, KC_NO, KC_NO, KC_NO, KC_NO
                           _______,    _______,    _______,          _______,    _______
 
 #define L_FUNCTION \
-  KC_ESC,            _______,       /* , , */    LCTL(KC_T),  LCTL(KC_S),       KC_F10, KC_F7,    KC_F8, KC_F9,   _______,  _______,  \
-  LCTL(KC_SLSH),     LCTL(KC_Z),    /* LCTL(KC_X),       LCTL(KC_C), */    /* LCTL(KC_V), */  LCTL(LSFT(KC_Z)),       KC_F11, _______,  KC_F1, KC_F2,   KC_F3,    _______,  \
+  KC_ESC,            _______,       TD_TAB_CLOSE_REOPEN,   LCTL(KC_T),  LCTL(KC_S),       KC_F10, KC_F7,    KC_F8, KC_F9,   _______,  _______,  \
+  LCTL(KC_SLSH),     LCTL(KC_Z),    TD_COPY_CUT,    /* LCTL(KC_V), */  LCTL(LSFT(KC_Z)),       KC_F11, _______,  KC_F1, KC_F2,   KC_F3,    _______,  \
 LALT(LSFT(KC_A)),  LCTL(KC_F),    LCTL(LSFT(KC_F)), _______,       _______,                               KC_F12, KC_F4,    KC_F5,    KC_F6, _______, _______,            \
                                       _______,        _______,       _______,     _______,        _______
 
@@ -79,10 +111,64 @@ LALT(LSFT(KC_A)),  LCTL(KC_F),    LCTL(LSFT(KC_F)), _______,       _______,     
       __VA_ARGS__
 #define HOME_ROW_MOD_GACS(...) _HOME_ROW_MOD_GACS(__VA_ARGS__)
 
+/**
+ * \brief Add pointer layer keys to a layout.
+ *
+ * Expects a 10-key per row layout.  The layout passed in parameter must contain
+ * at least 30 keycodes.
+ *
+ * This is meant to be used with `LAYER_ALPHAS_QWERTY` defined above, eg.:
+ *
+ *     POINTER_MOD(LAYER_ALPHAS_QWERTY)
+ */
+#define _POINTER_MOD(                                                  \
+    L00, L01, L02, L03, L04, R05, R06, R07, R08, R09,                  \
+    L10, L11, L12, L13, L14, R15, R16, R17, R18, R19,                  \
+    L20, L21, L22, L23, L24, R25, R26, R27, R28, R29,                  \
+    ...)                                                               \
+             L00,         L01,         L02,         L03,         L04,  \
+             R05,         R06,         R07,         R08,         R09,  \
+             L10,         L11,         L12,         L13,         L14,  \
+             R15,         R16,         R17,         R18,         R19,  \
+      _L_PTR(L20),        L21,         L22,         L23,         L24,  \
+             R25,         R26,         R27,         R28,  _L_PTR(R29), \
+      __VA_ARGS__
+#define POINTER_MOD(...) _POINTER_MOD(__VA_ARGS__)
+
+
+
 
 #define LAYOUT_wrapper(...) LAYOUT(__VA_ARGS__)
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
-  [L_BASE] = LAYOUT_wrapper(HOME_ROW_MOD_GACS(LAYER_BASE))
+  [L_BASE] = LAYOUT_wrapper(POINTER_MOD(HOME_ROW_MOD_GACS(LAYER_BASE)))
 };
 // clang-format on
+
+#ifdef POINTING_DEVICE_ENABLE
+#    ifdef CHARYBDIS_AUTO_POINTER_LAYER_TRIGGER_ENABLE
+report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
+    if (abs(mouse_report.x) > CHARYBDIS_AUTO_POINTER_LAYER_TRIGGER_THRESHOLD || abs(mouse_report.y) > CHARYBDIS_AUTO_POINTER_LAYER_TRIGGER_THRESHOLD) {
+        if (auto_pointer_layer_timer == 0) {
+            layer_on(L_POINTER);
+        }
+        auto_pointer_layer_timer = timer_read();
+    }
+    return mouse_report;
+}
+
+void matrix_scan_user(void) {
+    if (auto_pointer_layer_timer != 0 && TIMER_DIFF_16(timer_read(), auto_pointer_layer_timer) >= CHARYBDIS_AUTO_POINTER_LAYER_TRIGGER_TIMEOUT_MS) {
+        auto_pointer_layer_timer = 0;
+        layer_off(L_POINTER);
+    }
+}
+#    endif // CHARYBDIS_AUTO_POINTER_LAYER_TRIGGER_ENABLE
+
+#    ifdef CHARYBDIS_AUTO_SNIPING_ON_LAYER
+layer_state_t layer_state_set_user(layer_state_t state) {
+    charybdis_set_pointer_sniping_enabled(layer_state_cmp(state, CHARYBDIS_AUTO_SNIPING_ON_LAYER));
+    return state;
+}
+#    endif // CHARYBDIS_AUTO_SNIPING_ON_LAYER
+#endif     // POINTING_DEVICE_ENABLE
