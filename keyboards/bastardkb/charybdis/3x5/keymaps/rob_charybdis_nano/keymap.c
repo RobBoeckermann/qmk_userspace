@@ -73,10 +73,6 @@ static uint16_t auto_pointer_layer_timer = 0;
 #    define SNIPING KC_NO
 #endif // !POINTING_DEVICE_ENABLE
 
-/** Convenience row shorthands. */
-#define _______________DEAD_HALF_ROW_______________ XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX
-#define ______________HOME_ROW_GACS_L______________ XXXXXXX, KC_LALT, KC_LCTL, KC_LSFT, KC_LGUI
-#define ______________HOME_ROW_GACS_R______________ KC_LGUI, KC_LSFT, KC_LCTL, KC_LALT, XXXXXXX
 
 // clang-format off
 
@@ -207,8 +203,8 @@ _______,    _______,    _______,    _______,    _______, /**/ _______,  _______,
     ...)                                                               \
              L00,         L01,         L02,         L03,         L04,  \
              R05,         R06,         R07,         R08,         R09,  \
-             L10, LALT_T(L11), LCTL_T(L12), LSFT_T(L13), LGUI_T(L14),  \
-     RGUI_T(R15), RSFT_T(R16), RCTL_T(R17), LALT_T(R18),         R19,  \
+             L10, LSFT_T(L11), LCTL_T(L12), LALT_T(L13), LGUI_T(L14),  \
+     RGUI_T(R15), RALT_T(R16), RCTL_T(R17), RSHT_T(R18),         R19,  \
       __VA_ARGS__
 #define HOME_ROW_MOD_GACS(...) _HOME_ROW_MOD_GACS(__VA_ARGS__)
 
