@@ -106,9 +106,9 @@ LSFT(KC_J), KC_QUES,    KC_EXLM,    LSFT(KC_K), KC_GRV,           LSFT(KC_W), LS
 // |BLOCK COMMENT  |FIND   |FIND IN SOLUTION       |               |            |               |F12|F4 |F5 |F6 |   |
 //                         |           *           |               |            |               |   |   |
 #define LAYER_FUNCTION \
-KC_ESC,            _______,     TD_TAB_CLOSE_REOPEN,    LCTL(KC_T), LCTL(KC_S),       /**/ KC_F10,     KC_F7,    KC_F8,    KC_F9,  _______,    _______,  \
-LCTL(KC_SLSH),     LCTL(KC_Z),  TD_COPY,                TD_PASTE,   LCTL(LSFT(KC_Z)), /**/ KC_F11,     _______,  KC_F1,    KC_F2,  KC_F3,      _______,  \
-LALT(LSFT(KC_A)),  LCTL(KC_F),  LCTL(LSFT(KC_F)),       _______,    _______,          /**/ KC_F12,     KC_F4,    KC_F5,    KC_F6,  _______,    _______,  \
+KC_ESC,            _______,     TD_TAB_CLOSE_REOPEN,    LCTL(KC_T), LCTL(KC_S),       /**/ KC_F10,     KC_F7,    KC_F8,    KC_F9,  _______,  \
+LCTL(KC_SLSH),     LCTL(KC_Z),  TD_COPY,                TD_PASTE,   LCTL(LSFT(KC_Z)), /**/ KC_F11,     _______,  KC_F1,    KC_F2,  KC_F3,    \
+LALT(LSFT(KC_A)),  LCTL(KC_F),  LCTL(LSFT(KC_F)),       _______,    _______,          /**/ KC_F12,     KC_F4,    KC_F5,    KC_F6,  _______,  \
                                 _______,                _______,    _______,          /**/ _______,    _______
 
 // -----------------------------------------------------------------------------------------
