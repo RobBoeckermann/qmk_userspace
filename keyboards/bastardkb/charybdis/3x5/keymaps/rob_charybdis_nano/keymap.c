@@ -24,6 +24,7 @@
 
 // TODO:
 // DPI configs and buttons https://docs.bastardkb.com/fw/charybdis-features.html
+// Dynamic macros https://docs.qmk.fm/keycodes#dynamic-macros
 
 
 enum charybdis_keymap_layers {
@@ -94,12 +95,12 @@ KC_NO, KC_NO, KC_NO, KC_NO, KC_NO
 // |  Q  |  H  |  O  |  U  |  X  |                                        |  G  |  C  |  R  |  F  |  Z  |
 // |  Y  |  I  |  E  |  A  |  @  |                                        |  D  |  S  |  T  |  N  |  B  |
 // |  J  |  ?  |  !  |  K  |  `  |                                        |  W  |  M  |  L  |  P  |  V  |
-//             |     |  *  |     |                                        |     |     |
+//             |     |  *  |     |                                        |     | LOCK |
 #define LAYER_SHIFT \
 LSFT(KC_Q), LSFT(KC_H), LSFT(KC_O), LSFT(KC_U), LSFT(KC_X),       LSFT(KC_G), LSFT(KC_C), LSFT(KC_R), LSFT(KC_F), LSFT(KC_Z), \
 LSFT(KC_Y), LSFT(KC_I), LSFT(KC_E), LSFT(KC_A), KC_AT,            LSFT(KC_D), LSFT(KC_S), LSFT(KC_T), LSFT(KC_N), LSFT(KC_B), \
 LSFT(KC_J), KC_QUES,    KC_EXLM,    LSFT(KC_K), KC_GRV,           LSFT(KC_W), LSFT(KC_M), LSFT(KC_L), LSFT(KC_P), LSFT(KC_V), \
-                        _______,    _______,    _______,          _______,    _______
+                        _______,    _______,    _______,          _______,    QK_LOCK
 
 // -----------------------------------------------------------------------------------------
 // |ESC            |       |CLOSE TAB              |NEW TAB        |SAVE        |               |F10|F7 |F8 |F9 |   |
@@ -118,10 +119,10 @@ LALT(LSFT(KC_A)),  LCTL(KC_F),  LCTL(LSFT(KC_F)),       _______,    _______,    
 // | RESTART    | DEBUG/CONTINUE | STEP        | STEP IN | STEP OUT |                        |    |PAGE UP |       |PAGE DOWN |       |
 //                               |             | BOOT    |     *    |                        |    |        |
 #define LAYER_ARROWS \
-QK_RBT,     _______,    SELECT_WORD,    _______,    _______, /**/ _______,  KC_HOME,    KC_UP,      KC_END,         _______, \
-_______,    _______,    _______,        _______,    _______, /**/ _______,  KC_LEFT,    KC_DOWN,    KC_RIGHT,       KC_INSERT, \
-_______,    _______,    _______,        _______,    _______, /**/ _______,  KC_PAGE_UP, _______,    KC_PAGE_DOWN,   _______, \
-                        _______,        _______,    _______, /**/ _______,  _______
+QK_RBT,             _______,    SELECT_WORD,    _______,    _______,        /**/ _______,  KC_HOME,    KC_UP,      KC_END,         _______, \
+LGUI(LSFT(KC_S)),   KC_LSFT,    KC_LCTL,        KC_LALT,    _______,        /**/ _______,  KC_LEFT,    KC_DOWN,    KC_RIGHT,       KC_INSERT, \
+LSFT(LCTL(KC_F5)),  KC_F5,      KC_F10,         KC_F11,     LSFT(KC_F11),   /**/ _______,  KC_PAGE_UP, _______,    KC_PAGE_DOWN,   _______, \
+                                _______,        QK_BOOT,    _______,        /**/ _______,  _______
 
 // -----------------------------------------------------------------------------------------
 // |     |  <  |  $  |  >  |     |                        |     |  [  |  _  |  ]  |     |
