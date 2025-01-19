@@ -16,7 +16,6 @@
  */
 #include QMK_KEYBOARD_H
 #include "custom_keycodes.h"
-#include "tap_dance.h"
 
 #ifdef CHARYBDIS_AUTO_POINTER_LAYER_TRIGGER_ENABLE
 #    include "timer.h"
@@ -26,6 +25,35 @@
 // DPI configs and buttons https://docs.bastardkb.com/fw/charybdis-features.html
 // Dynamic macros https://docs.qmk.fm/keycodes#dynamic-macros
 
+typedef struct {
+  bool is_press_action;
+  int state;
+} tap;
+
+enum {
+  SINGLE_TAP = 1,
+  SINGLE_HOLD = 2,
+  DOUBLE_TAP = 3,
+  DOUBLE_HOLD = 4,
+  DOUBLE_SINGLE_TAP = 5, //send two single taps
+  TRIPLE_TAP = 6,
+  TRIPLE_HOLD = 7
+};
+
+//Tap dance enums
+enum {
+  X_CTL = 0,
+  TD_COPY,
+  TD_PASTE,
+  TD_TAB_CLOSE_REOPEN
+};
+
+int cur_dance (tap_dance_state_t *state);
+
+//for the x tap dance. Put it here so it can be used in any keymap
+void x_finished (tap_dance_state_t *state, void *user_data);
+void x_reset (tap_dance_state_t *state, void *user_data);
+void copy_finished(tap_dance_state_t *state, void *user_data);
 
 enum charybdis_keymap_layers {
     L_BASE = 0,
@@ -103,11 +131,12 @@ LSFT(KC_J), KC_QUES,    KC_EXLM,    LSFT(KC_K), KC_GRV,           LSFT(KC_W), LS
 // | LINE COMMENT  | UNDO | COPY             | PASTE   | REDO | /**/ | F11 |    | F1 | F2 | F3 |
 // | BLOCK COMMENT | FIND | FIND IN SOLUTION |         |      | /**/ | F12 | F4 | F5 | F6 |    |
 //                        |        *         |         |      | /**/ |     |    |
+#define KC_COPYCUT MT(MOD_LCTL, KC_C)
 #define LAYER_FUNCTION \
-KC_ESC,            _______,     TD_TAB_CLOSE_REOPEN,    LCTL(KC_T), LCTL(KC_S),       /**/ KC_F10,     KC_F7,    KC_F8,    KC_F9,  _______,  \
-LCTL(KC_SLSH),     LCTL(KC_Z),  TD_COPY,                TD_PASTE,   LCTL(LSFT(KC_Z)), /**/ KC_F11,     _______,  KC_F1,    KC_F2,  KC_F3,    \
-LALT(LSFT(KC_A)),  LCTL(KC_F),  LCTL(LSFT(KC_F)),       _______,    _______,          /**/ KC_F12,     KC_F4,    KC_F5,    KC_F6,  _______,  \
-                                _______,                _______,    _______,          /**/ _______,    _______
+KC_ESC,            _______,     TD(TD_TAB_CLOSE_REOPEN),  LCTL(KC_T),   LCTL(KC_S),       /**/ KC_F10,     KC_F7,    KC_F8,    KC_F9,  _______,  \
+LCTL(KC_SLSH),     LCTL(KC_Z),  TD(TD_COPY),              TD(TD_PASTE), LCTL(LSFT(KC_Z)), /**/ KC_F11,     _______,  KC_F1,    KC_F2,  KC_F3,    \
+LALT(LSFT(KC_A)),  LCTL(KC_F),  LCTL(LSFT(KC_F)),         _______,      _______,          /**/ KC_F12,     KC_F4,    KC_F5,    KC_F6,  _______,  \
+                                _______,                  _______,      _______,          /**/ _______,    _______
 
 // -----------------------------------------------------------------------------------------
 // | RESET      |                | SELECT WORD |         |          | /**/ |    | HOME    | UP   | END       |        |
@@ -204,7 +233,7 @@ _______,    _______,    _______,    _______,    _______, /**/ _______,  _______,
              L00,         L01,         L02,         L03,         L04,  \
              R05,         R06,         R07,         R08,         R09,  \
              L10, LSFT_T(L11), LCTL_T(L12), LALT_T(L13), LGUI_T(L14),  \
-     RGUI_T(R15), RALT_T(R16), RCTL_T(R17), RSHT_T(R18),         R19,  \
+     RGUI_T(R15), RALT_T(R16), RCTL_T(R17), RSFT_T(R18),         R19,  \
       __VA_ARGS__
 #define HOME_ROW_MOD_GACS(...) _HOME_ROW_MOD_GACS(__VA_ARGS__)
 
@@ -247,6 +276,108 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [L_VSCODE] = LAYOUT_wrapper(LAYER_VSCODE),
   [L_WINDOWS] = LAYOUT_wrapper(LAYER_WINDOWS),
   [L_MEDIA] = LAYOUT_wrapper(LAYER_MEDIA),
+};
+
+
+
+/* Return an integer that corresponds to what kind of tap dance should be executed.
+ *
+ * How to figure out tap dance state: interrupted and pressed.
+ *
+ * Interrupted: If the state of a dance dance is "interrupted", that means that another key has been hit
+ *  under the tapping term. This is typically indicitive that you are trying to "tap" the key.
+ *
+ * Pressed: Whether or not the key is still being pressed. If this value is true, that means the tapping term
+ *  has ended, but the key is still being pressed down. This generally means the key is being "held".
+ *
+ * One thing that is currenlty not possible with qmk software in regards to tap dance is to mimic the "permissive hold"
+ *  feature. In general, advanced tap dances do not work well if they are used with commonly typed letters.
+ *  For example "A". Tap dances are best used on non-letter keys that are not hit while typing letters.
+ *
+ * Good places to put an advanced tap dance:
+ *  z,q,x,j,k,v,b, any function key, home/end, comma, semi-colon
+ *
+ * Criteria for "good placement" of a tap dance key:
+ *  Not a key that is hit frequently in a sentence
+ *  Not a key that is used frequently to double tap, for example 'tab' is often double tapped in a terminal, or
+ *    in a web form. So 'tab' would be a poor choice for a tap dance.
+ *  Letters used in common words as a double. For example 'p' in 'pepper'. If a tap dance function existed on the
+ *    letter 'p', the word 'pepper' would be quite frustating to type.
+ *
+ * For the third point, there does exist the 'DOUBLE_SINGLE_TAP', however this is not fully tested
+ *
+ */
+int cur_dance (tap_dance_state_t *state) {
+  if (state->count == 1) {
+    if (state->interrupted || !state->pressed)  return SINGLE_TAP;
+    //key has not been interrupted, but they key is still held. Means you want to send a 'HOLD'.
+    else return SINGLE_HOLD;
+  }
+  else if (state->count == 2) {
+    /*
+     * DOUBLE_SINGLE_TAP is to distinguish between typing "pepper", and actually wanting a double tap
+     * action when hitting 'pp'. Suggested use case for this return value is when you want to send two
+     * keystrokes of the key, and not the 'double tap' action/macro.
+    */
+    if (state->interrupted) return DOUBLE_SINGLE_TAP;
+    else if (state->pressed) return DOUBLE_HOLD;
+    else return DOUBLE_TAP;
+  }
+  //Assumes no one is trying to type the same letter three times (at least not quickly).
+  //If your tap dance key is 'KC_W', and you want to type "www." quickly - then you will need to add
+  //an exception here to return a 'TRIPLE_SINGLE_TAP', and define that enum just like 'DOUBLE_SINGLE_TAP'
+  if (state->count == 3) {
+    if (state->interrupted || !state->pressed)  return TRIPLE_TAP;
+    else return TRIPLE_HOLD;
+  }
+  else return 8; //magic number. At some point this method will expand to work for more presses
+}
+
+//instanalize an instance of 'tap' for the 'x' tap dance.
+static tap xtap_state = {
+  .is_press_action = true,
+  .state = 0
+};
+
+void copy_finished(tap_dance_state_t *state, void *user_data) {
+    xtap_state.state = cur_dance(state);
+    switch (xtap_state.state) {
+        case SINGLE_TAP: tap_code16(LCTL(KC_C)); break;
+        case SINGLE_HOLD: tap_code16(LCTL(KC_X)); break;
+    }
+}
+// void copy_reset(tap_dance_state_t *state, void *user_data) {
+//     switch (xtap_state.state) {
+//         case SINGLE_TAP: unregister_code16(LCTL(KC_C)); break;
+//         case SINGLE_HOLD: unregister_code16(LCTL(KC_X)); break;
+//     }
+//   xtap_state.state = 0;
+// }
+
+void paste_finished(tap_dance_state_t *state, void *user_data) {
+    xtap_state.state = cur_dance(state);
+    switch (xtap_state.state) {
+        case SINGLE_TAP: tap_code16(LCTL(KC_V)); break;
+        case SINGLE_HOLD: tap_code16(LGUI(KC_V)); break;
+        case DOUBLE_HOLD: tap_code16(LCTL(LSFT(KC_V))); break;
+        default: break;
+    }
+}
+
+void tab_close_reopen_finished(tap_dance_state_t *state, void *user_data) {
+    xtap_state.state = cur_dance(state);
+    switch (xtap_state.state) {
+        case SINGLE_TAP: tap_code16(LCTL(KC_W)); break;
+        case SINGLE_HOLD: tap_code16(LCTL(LSFT(KC_T))); break;
+        default: break;
+    }
+}
+
+tap_dance_action_t tap_dance_actions[] = {
+  [X_CTL]     = ACTION_TAP_DANCE_FN_ADVANCED(NULL,x_finished, x_reset),
+  [TD_COPY] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, copy_finished, NULL),
+  [TD_PASTE] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, paste_finished, NULL),
+  [TD_TAB_CLOSE_REOPEN] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, tab_close_reopen_finished, NULL)
 };
 
 // clang-format on
