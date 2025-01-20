@@ -16,23 +16,8 @@
 //     [3] = LAYOUT_split_3x5_3(KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, RGB_HUI, RGB_SAI, RGB_VAI, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, RGB_HUD, RGB_SAD, RGB_VAD, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_LGUI, KC_SPC, KC_TRNS, KC_TRNS, KC_ENT, KC_RALT)
 // };
 
+#include "custom_keycodes.h"
 #include "process_tap_dance.h"
-
-enum custom_keycodes {
-    SELECT_WORD = SAFE_RANGE,
-};
-
-bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    switch (keycode) {
-    case SELECT_WORD:
-        if (record->event.pressed) {
-            SEND_STRING(SS_DOWN(X_LCTL)SS_TAP(X_LEFT)SS_DOWN(X_LSFT)SS_TAP(X_RIGHT));
-        } else {
-        }
-        break;
-    }
-    return true;
-};
 
 typedef struct {
   bool is_press_action;
