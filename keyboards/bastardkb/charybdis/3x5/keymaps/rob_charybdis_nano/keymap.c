@@ -16,6 +16,7 @@
  */
 #include QMK_KEYBOARD_H
 #include "custom_keycodes.h"
+#include "process_tap_dance.h"
 
 #ifdef CHARYBDIS_AUTO_POINTER_LAYER_TRIGGER_ENABLE
 #    include "timer.h"
@@ -42,7 +43,6 @@ enum {
 
 //Tap dance enums
 enum {
-  X_CTL = 0,
   TD_COPY,
   TD_PASTE,
   TD_TAB_CLOSE_REOPEN
@@ -50,10 +50,9 @@ enum {
 
 int cur_dance (tap_dance_state_t *state);
 
-//for the x tap dance. Put it here so it can be used in any keymap
-void x_finished (tap_dance_state_t *state, void *user_data);
-void x_reset (tap_dance_state_t *state, void *user_data);
+// declarations for tap dance. Put them here so it can be used in any keymap
 void copy_finished(tap_dance_state_t *state, void *user_data);
+// TODO: try moving tapdance out of keymap.c again.
 
 enum charybdis_keymap_layers {
     L_BASE = 0,
@@ -131,7 +130,6 @@ LSFT(KC_J), KC_QUES,    KC_EXLM,    LSFT(KC_K), KC_GRV,           LSFT(KC_W), LS
 // | LINE COMMENT  | UNDO | COPY             | PASTE   | REDO | /**/ | F11 |    | F1 | F2 | F3 |
 // | BLOCK COMMENT | FIND | FIND IN SOLUTION |         |      | /**/ | F12 | F4 | F5 | F6 |    |
 //                        |        *         |         |      | /**/ |     |    |
-#define KC_COPYCUT MT(MOD_LCTL, KC_C)
 #define LAYER_FUNCTION \
 KC_ESC,            _______,     TD(TD_TAB_CLOSE_REOPEN),  LCTL(KC_T),   LCTL(KC_S),       /**/ KC_F10,     KC_F7,    KC_F8,    KC_F9,  _______,  \
 LCTL(KC_SLSH),     LCTL(KC_Z),  TD(TD_COPY),              TD(TD_PASTE), LCTL(LSFT(KC_Z)), /**/ KC_F11,     _______,  KC_F1,    KC_F2,  KC_F3,    \
@@ -374,7 +372,6 @@ void tab_close_reopen_finished(tap_dance_state_t *state, void *user_data) {
 }
 
 tap_dance_action_t tap_dance_actions[] = {
-  [X_CTL]     = ACTION_TAP_DANCE_FN_ADVANCED(NULL,x_finished, x_reset),
   [TD_COPY] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, copy_finished, NULL),
   [TD_PASTE] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, paste_finished, NULL),
   [TD_TAB_CLOSE_REOPEN] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, tab_close_reopen_finished, NULL)
