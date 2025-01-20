@@ -84,7 +84,7 @@ static uint16_t auto_pointer_layer_timer = 0;
 
 #define _L_PTR(KC) LT(L_POINTER, KC)
 
-#define KC_Y_MEDIA LT(L_MEDIA, KC_Y)
+#define KC_Y_MEDIA LT(L_MEDIA, KC_Y) // TODO: move MEDIA and make WINDOWS
 #define KC_J_VSCODE LT(L_VSCODE, KC_J)
 #define KC_ENT_FUNCTION LT(L_FUNCTION, KC_ENT)
 #define KC_BSPC_SHIFT LT(L_SHIFT, KC_BSPC)
@@ -110,7 +110,7 @@ static uint16_t auto_pointer_layer_timer = 0;
 //       | ENTER | BACKSPACE | TAB | /**/ | DELETE | SPACE |
 #define LAYER_BASE \
 KC_Q,         KC_H,     KC_O,               KC_U,           KC_X,           /**/  KC_G,           KC_C,           KC_R,   KC_F,   KC_Z,           \
-KC_Y_MEDIA,   KC_I,     KC_E,               KC_A,           KC_DOT,         /**/  KC_D,           KC_S,           KC_T,   KC_N,   KC_B, \
+KC_Y,         KC_I,     KC_E,               KC_A,           KC_DOT,         /**/  KC_D,           KC_S,           KC_T,   KC_N,   KC_B, \
 KC_J_VSCODE,  KC_SLSH,  KC_COMM,            KC_K,           KC_QUOT,        /**/  KC_W,           KC_M,           KC_L,   KC_P,   KC_V, \
                         KC_ENT_FUNCTION,    KC_BSPC_SHIFT,  KC_TAB_ARROWS,  /**/  KC_DEL_NUMPAD,  KC_SPC_SYMBOLS
 
