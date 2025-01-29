@@ -207,6 +207,23 @@ _______,    _______,    _______,    _______,    _______, /**/ _______,  _______,
 // |    |    |    |    |    | /**/ |    |    |    |    |    |
 // |    |    |    |    |    | /**/ |    |    |    |    |    |
 //           |    |    |    | /**/ |    |    |
+#define LAYER_POINTER \
+_______,    _______,    _______,    _______,    _______, /**/ S_D_MOD,          _______,    _______,    _______,  DPI_MOD, \
+_______,    KC_BTN3,    KC_BTN1,    KC_BTN2,    _______, /**/ KC_SNIPING_RESET, KC_BTN2,    KC_BTN1,    KC_BTN3,  KC_DPI_RESET, \
+_______,    _______,    _______,    _______,    _______, /**/ S_D_RMOD,          _______,   _______,    _______,  DPI_RMOD, \
+                        DRGSCRL,    SNIPING,    _______, /**/ _______,  _______
+
+//TODO: SNIPING is locking on. is this due to the auto layer disabling while the button is still pressed? 
+//edit the keycode to unlock if the auto layer disables.
+//TODO: auto layer is inconsistent.
+//MS_WHLU
+//MS_WHLD
+
+// -----------------------------------------------------------------------------------------
+// |    |    |    |    |    | /**/ |    |    |    |    |    |
+// |    |    |    |    |    | /**/ |    |    |    |    |    |
+// |    |    |    |    |    | /**/ |    |    |    |    |    |
+//           |    |    |    | /**/ |    |    |
 #define LAYER_TEMPLATE \
 _______,    _______,    _______,    _______,    _______, /**/ _______,  _______,    _______,    _______,    _______, \
 _______,    _______,    _______,    _______,    _______, /**/ _______,  _______,    _______,    _______,    _______, \
@@ -274,6 +291,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [L_VSCODE] = LAYOUT_wrapper(LAYER_VSCODE),
   [L_WINDOWS] = LAYOUT_wrapper(LAYER_WINDOWS),
   [L_MEDIA] = LAYOUT_wrapper(LAYER_MEDIA),
+  [L_POINTER] = LAYOUT_wrapper(LAYER_POINTER),
 };
 
 
