@@ -32,7 +32,7 @@
         "rows": ["GP3", "GP1", "GP2", "GP0",    "GP27", "GP28", "GP29", "GP8"]
     },
     "processor": "RP2040",
-    "url": "",
+    "url": "https://github.com",
     "usb": {
         "device_version": "1.0.0",
         "pid": "0x0000",

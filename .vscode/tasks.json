@@ -6,7 +6,7 @@
         {
             "label": "qmk compile",
             "type": "shell",
-            "command": "clear && qmk compile -c -kb bastardkb/charybdis/3x5 -km rob_charybdis_nano",
+            "command": "clear && qmk compile -c -kb bastardkb/charybdis/3x5/elitec -km rob_charybdis_nano",
             "problemMatcher": []
         }
     ]
