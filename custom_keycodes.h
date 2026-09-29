@@ -11,6 +11,7 @@ enum custom_keycodes {
     CPI_DOWN
 };
 
+#if defined(POINTING_DEVICE_ENABLE)
 bool set_scrolling = false;
 
 // Modify these values to adjust the scrolling speed
@@ -44,6 +45,7 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
     return mouse_report;
 }
 
+#if defined(PMW33XX_CPI)
 void reset_cpi_to_default(void) {
     pointing_device_set_cpi(PMW33XX_CPI);
 }
@@ -52,15 +54,16 @@ void increment_cpi(void) {
     pointing_device_set_cpi(pointing_device_get_cpi() + 200);
 }
 
-
 void decrement_cpi(void) {
     pointing_device_set_cpi(pointing_device_get_cpi() - 200);
 }
+#endif
+#endif
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
     case SELECT_WORD:
-        if (record->event.pressed) 
+        if (record->event.pressed)
         {
             SEND_STRING(SS_DOWN(X_LCTL)SS_TAP(X_LEFT)SS_DOWN(X_LSFT)SS_TAP(X_RIGHT));
         }
@@ -71,7 +74,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 unregister_code(KC_RCTL);
                 tap_code(KC_MINUS);
                 register_code(KC_RCTL);
-            } 
+            }
             return false;
         }
         break;
@@ -81,33 +84,42 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 unregister_code(KC_LCTL);
                 tap_code(KC_SEMICOLON);
                 register_code(KC_LCTL);
-            } 
+            }
             return false;
         }
         break;
     case DRAG_SCROLL:
+#if defined(POINTING_DEVICE_ENABLE)
         set_scrolling = record->event.pressed;
+#endif
         break;
     case CPI_RESET:
+#if defined(POINTING_DEVICE_ENABLE) && defined(PMW33XX_CPI)
         if (record->event.pressed) {
             reset_cpi_to_default();
         }
+#endif
         break;
     case CPI_UP:
+#if defined(POINTING_DEVICE_ENABLE) && defined(PMW33XX_CPI)
         if (record->event.pressed) {
             increment_cpi();
         }
+#endif
         break;
     case CPI_DOWN:
+#if defined(POINTING_DEVICE_ENABLE) && defined(PMW33XX_CPI)
         if (record->event.pressed) {
             decrement_cpi();
         }
+#endif
         break;
     }
 
     return true;
 };
 
+#if defined(POINTING_DEVICE_ENABLE) && defined(AUTO_MOUSE_DEFAULT_LAYER)
 // Function to handle layer changes and disable drag scrolling when not in AUTO_MOUSE_DEFAULT_LAYER
 layer_state_t layer_state_set_user(layer_state_t state) {
     // Disable set_scrolling if the current layer is not the AUTO_MOUSE_DEFAULT_LAYER
@@ -116,3 +128,4 @@ layer_state_t layer_state_set_user(layer_state_t state) {
     }
     return state;
 }
+#endif
